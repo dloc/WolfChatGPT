@@ -1,0 +1,56 @@
+import wolframalpha
+import openai
+
+# set up API keys
+openai.api_key = "ADD API Key to openai"
+wolframalpha_app_id = "Add WolframAlph API key"
+
+# create a WolframAlpha client object
+client = wolframalpha.Client(wolframalpha_app_id)
+
+# define a function to check if a question has a mathematical expression
+def has_math(question):
+    for c in question:
+        if c in "+-*/^":
+            return True
+    return False
+
+# define a function to get a response from ChatGPT
+def get_chatgpt_response(question):
+    completion = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "system", "content": "You are a Oracle of Delphi"}, {"role": "user", "content": content}]
+
+    )
+
+    chat_response=completion.choices[0].message.content
+    print(f'ChatGPT: {chat_response}')
+
+
+# define a function to get a response from WolframAlpha
+def get_wolfram_response(question):
+    res = client.query(question)
+    #return next(res.results).text
+    print(f'WolframAlpha: {next(res.results).text}')
+
+def get_combined_response(question):
+    if has_math(question):
+        wolfram_response = get_wolfram_response(question)
+#         if not wolfram_response:
+#             return get_chatgpt_response(question)
+        return wolfram_response
+    else:
+        chatgpt_response = get_chatgpt_response(question)
+        return chatgpt_response
+
+
+
+
+# roles are user, system, assistant
+while True:
+    content = input("Users: ")
+    if content.lower() in ["bye", "exit", "quit", "goodbye"]:
+        print("ChatGPT: It was Nice talking to you!")
+        break
+    response = get_combined_response(content)
+
